@@ -80,9 +80,9 @@ public class RPCA {
 	
 	private double sum(double[] x) {
 		double sum = 0;
-		for (int i = 0; i < x.length; i++)
+		for(int i = 0; i < x.length; i++) {
 			sum += x[i];
-		return (sum);
+		}
 	}
 	
 	private double l1norm(double[][] x) {

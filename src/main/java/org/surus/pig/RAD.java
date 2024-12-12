@@ -72,7 +72,6 @@ public class RAD extends EvalFunc<DataBag> {
             Schema inputBagSchema = inputFieldSchema.schema;
             if (inputBagSchema.getField(0).type != DataType.TUPLE) {
                 throw new RuntimeException(String.format("Expected input bag to contain a TUPLE, but instead found %s",
-                        DataType.findTypeName(inputBagSchema.getField(0).type)));
             }
 
             // Define Input Tuple Schema
@@ -161,11 +160,12 @@ public class RAD extends EvalFunc<DataBag> {
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.FLOAT) {
 				inputArray[n] = (Float) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.LONG ) {
-				inputArray[n] = (Long) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER ) {
-				inputArray[n] = (Integer) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
+     public double[][] VectorToMatrix(double[] x, int rows, int cols) {
+         double[][] input2DArray = new double[rows][cols];
 			} else {
-	        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
+                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
+        }
 	                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
 			}
 			
@@ -175,7 +175,6 @@ public class RAD extends EvalFunc<DataBag> {
 		if (numNonZeroRecords>=this.minRecords) {
 			AugmentedDickeyFuller dickeyFullerTest = new AugmentedDickeyFuller(inputArray);
 			double[] inputArrayTransformed = inputArray;
-			if (this.isForceDiff == null && dickeyFullerTest.isNeedsDiff()) {
 				// Auto Diff
 				inputArrayTransformed = dickeyFullerTest.getZeroPaddedDiff();
 			} else if (this.isForceDiff) {

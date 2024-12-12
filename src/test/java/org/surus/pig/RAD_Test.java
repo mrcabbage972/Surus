@@ -149,9 +149,8 @@ public class RAD_Test {
 			fieldSchemaFinal.add(new Schema.FieldSchema("dummy_bag", new Schema(innerTupleFieldSchema), DataType.BAG));
 		} catch (FrontendException e1) {
 			e1.printStackTrace();
-		}
+    \n    }\n\n}
 
-        // Return Schema
 		Schema outputSchema = new Schema(fieldSchemaFinal);
         return outputSchema;
 

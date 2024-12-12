@@ -38,7 +38,7 @@ public class AugmentedDickeyFuller {
 	
 	private void computeADFStatistics() {
 		double[] y = diff(ts);
-		RealMatrix designMatrix = null;
+		RealMatrix designMatrix;
 		int k = lag+1;
 		int n = ts.length - 1;
 		

@@ -19,7 +19,7 @@ public class RidgeRegression {
 
 	public RidgeRegression(double[][] x, double[] y) {
 		this.X = MatrixUtils.createRealMatrix(x);
-		this.X_svd = null;
+		this.X_svd = new SingularValueDecomposition(X);
 		this.Y = y;
 		this.l2penalty = 0;
 		this.coefficients = null;
@@ -30,9 +30,6 @@ public class RidgeRegression {
 	
 	public void updateCoefficients(double l2penalty) {
         if (this.X_svd == null) {
-        	this.X_svd = new SingularValueDecomposition(X);
-        }
-	    RealMatrix V = this.X_svd.getV();
 	    double[] s = this.X_svd.getSingularValues();
 	    RealMatrix U = this.X_svd.getU();
 	    

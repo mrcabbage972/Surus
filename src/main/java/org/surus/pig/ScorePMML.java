@@ -179,9 +179,6 @@ public class ScorePMML extends EvalFunc<Tuple> {
             this.inputTupleSchema = input;
             HashSet<String> aliases = new HashSet<String>(inputTupleSchema.getAliases());
             Boolean isVerbose = false;
-
-            for (FieldName activeField : this.activeFields) {
-            	
             	// Check that all active fields are present in dataset:
             	String activeFieldAlias = activeField.toString().toLowerCase();
             	if (!aliases.contains(activeFieldAlias)) {
@@ -189,6 +186,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
             	}
             	
             	// Check that all active fields have expected datatypes:
+            \tif (!aliases.contains(activeFieldAlias)) {
     			Byte left = this.inputTupleSchema.getField(aliasMap.get(activeFieldAlias)).type;
     			Byte right = dataTypeMap.get(this.evaluator.getDataField(activeField).getDataType().toString());
             	if (left != right)
@@ -297,6 +295,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 			/*
 			try {
 				this.preparedRow.put(inputField, EvaluatorUtil.prepare(this.evaluator, inputField, bodyCell));
+\t\t\ttry {
 			} catch (Throwable t) {
 	        	System.err.println("Unable to prepare record, Trouble Parsing: " + inputField.toString() + " (value="+ bodyCell+")");
 	        	System.err.println(t);
@@ -319,9 +318,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 			outputTuple.set(i++,EvaluatorUtil.decode(result.get(outputField)));
 		}
 
-		// Return Tuple:
 		return outputTuple;
-
 	}
 	
 }
