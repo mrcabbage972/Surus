@@ -4,7 +4,6 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 public class RPCA {
 
 	private RealMatrix X;
@@ -98,23 +97,23 @@ public class RPCA {
 	private double computeL(double mu) {
 		double LPenalty = lpenalty * mu;
 		SingularValueDecomposition svd = new SingularValueDecomposition(X.subtract(S));
-		double[] penalizedD = softThreshold(svd.getSingularValues(), LPenalty);
+		double[] penalizedD = softThreshold(svd.getSingularValues(), lpenalty * mu);
 		RealMatrix D_matrix = MatrixUtils.createRealDiagonalMatrix(penalizedD);
-		L = svd.getU().multiply(D_matrix).multiply(svd.getVT());
+		this.L = svd.getU().multiply(D_matrix).multiply(svd.getVT());
 		return sum(penalizedD) * LPenalty;
 	}
 	
 	private double computeS(double mu) {
 		double SPenalty = spenalty * mu;
 		double[][] penalizedS = softThreshold(X.subtract(L).getData(), SPenalty);
-		S = MatrixUtils.createRealMatrix(penalizedS);
+		this.S = MatrixUtils.createRealMatrix(penalizedS);
 		return l1norm(penalizedS) * SPenalty;
 	}
 	
 	private double computeE() {
 		E = X.subtract(L).subtract(S);
 		double norm = E.getFrobeniusNorm();
-		return Math.pow(norm, 2);
+		return 0.5 * Math.pow(norm, 2);
 	}
 	
 	private double computeObjective(double nuclearnorm, double l1norm, double l2norm) {

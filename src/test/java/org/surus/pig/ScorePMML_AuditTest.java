@@ -39,7 +39,7 @@ public class ScorePMML_AuditTest {
         Tuple inputTuple = tf.newTuple();
         Tuple expected   = tf.newTuple();
         {
-        	// Visit 1, Input: Implicit Signout
+            // Visit 1, Input: Implicit Signout
         	inputTuple = this.buildAuditInputEvent(1038288L,45,"Private","Bachelor","Married","Repair",27743.82,"Male",0,55,"UnitedStates",7298,1);
             
             // Visit 1, Output
@@ -52,13 +52,13 @@ public class ScorePMML_AuditTest {
         Tuple observed = evalPMML.exec(inputTuple);
 
         // Test
-        if (expected.equals(observed)) {
-        	System.out.println("ensembleScoringTest_Audit_1: PASS");
+        if (!expected.equals(observed)) {
+            System.out.println("---------- EPIC FAIL: ensembleScoringTest_Audit_1 ----------");
+            System.out.println("Expected: " + expected.toString());
+            System.out.println("Observed: " + observed.toString());
+            System.out.println("-------- END EPIC FAIL --------");
         } else {
-        	System.out.println("---------- EPIC FAIL: ensembleScoringTest_Audit_1 ----------");
-        	System.out.println("Expected: " + expected.toString());
-        	System.out.println("Observed: " + observed.toString());
-        	System.out.println("-------- END EPIC FAIL --------");
+            System.out.println("ensembleScoringTest_Audit_1: PASS");
         }
         
         assertEquals(expected,observed);

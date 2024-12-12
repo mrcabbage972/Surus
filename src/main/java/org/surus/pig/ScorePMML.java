@@ -50,7 +50,6 @@ public class ScorePMML extends EvalFunc<Tuple> {
 
 	
     private static final TupleFactory tf = TupleFactory.getInstance();
-
 	private static final Map<String, Byte> dataTypeMap = new HashMap<String, Byte>();
     static {
         dataTypeMap.put("STRING" , DataType.CHARARRAY);
@@ -85,20 +84,20 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		System.err.println("modelPath: "+this.modelPath);
 
 		// Set Distributed Cache
-    	int blah = this.modelPath.lastIndexOf("/") + 1;
-    	this.modelName = this.modelPath.substring(blah);
-       	System.err.println("modelName: "+this.modelName);
+		int blah = this.modelPath.lastIndexOf("/") + 1;
+		this.modelName = this.modelPath.substring(blah);
+		System.err.println("modelName: "+this.modelName);
 
 	}
 	
     public List<String> getCacheFiles() {
-    	String filePath = this.modelPath+"#"+this.modelName;
-        List<String> list = new ArrayList<String>(1); 
-        list.add(filePath);
-        System.err.println(filePath+": added to the distributed cache.");
-        return list; 
-    } 
-	
+		String filePath = this.modelPath+"#"+this.modelName;
+		List<String> list = new ArrayList<String>(1);
+		list.add(filePath);
+		System.err.println(filePath+": added to the distributed cache.");
+		return list;
+	}
+101 |
 	private void initialize(Schema inputSchema) throws IOException, SAXException, JAXBException {
 
 		this.inputTupleSchema = inputSchema;
@@ -106,7 +105,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		// and, initialize aliasMap:
 		if (this.aliasMap == null) {
 			this.aliasMap = new HashMap<String,Integer>();
-			for (String alias : this.inputTupleSchema.getAliases()) {
+			for (String alias : this.inputTupleSchema.getFieldNames()) {
 				this.aliasMap.put(alias,this.inputTupleSchema.getPosition(alias));		// something to cleanup
 			}
 		}
@@ -128,12 +127,12 @@ public class ScorePMML extends EvalFunc<Tuple> {
 			
 			// Try reading file from distributed cache.
     		pmml = IOUtil.unmarshal(new File("./"+this.modelName));
-    		System.err.println("Read model from distributed cache!");
+			System.err.println("Read model from distributed cache!");
     		
 		} catch (Throwable t) {
 			// If not on the back-end... (and distributed cache not available) ...
 			
-			if (this.modelPath.toLowerCase().startsWith("s3n://") || this.modelPath.toLowerCase().startsWith("s3://")) {
+			if (this.modelPath.toLowerCase().startsWith("s3n://") || this.modelPath.toLowerCase().startsWith("s3://") || this.modelPath.toLowerCase().startsWith("hdfs://")) {
 				// ... read from S3.
 				Path path = new Path(this.modelPath);
 				FileSystem fs = path.getFileSystem(new Configuration());
@@ -181,7 +180,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
             Boolean isVerbose = false;
 
             for (FieldName activeField : this.activeFields) {
-            	
+            	// Get Alias
             	// Check that all active fields are present in dataset:
             	String activeFieldAlias = activeField.toString().toLowerCase();
             	if (!aliases.contains(activeFieldAlias)) {
@@ -189,7 +188,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
             	}
             	
             	// Check that all active fields have expected datatypes:
-    			Byte left = this.inputTupleSchema.getField(aliasMap.get(activeFieldAlias)).type;
+    			Byte left = this.inputTupleSchema.getField(this.aliasMap.get(activeFieldAlias)).type;
     			Byte right = dataTypeMap.get(this.evaluator.getDataField(activeField).getDataType().toString());
             	if (left != right)
             		if (failOnTypeMatching) {
@@ -210,14 +209,14 @@ public class ScorePMML extends EvalFunc<Tuple> {
         	for (FieldName predictedField : this.predictedFields) {
         		String predictedFieldAlias = "predictedField_" + predictedField.toString().toLowerCase();
 
-        		// Create FieldName
+        		// Get FieldName
     			DataField dataField = this.evaluator.getDataField(predictedField);
     			String dataType = dataField.getDataType().toString();
     			
     			if (dataType == null) {
-                    throw new RuntimeException("Predicted Fields with unknown datatype are not supported! Column: "+predictedFieldAlias+", PMML DataType "+dataType+".");
+                    throw new RuntimeException("Predicted Fields with unknown datatype are not supported! Field: "+predictedFieldAlias+", PMML DataType "+dataType+".");
     			} else if (!dataTypeMap.containsKey(dataType)) {
-                    throw new RuntimeException("Column: "+predictedFieldAlias+", PMML DataType "+dataType+" is not currently supported.");
+                    throw new RuntimeException("Field: "+predictedFieldAlias+", PMML DataType "+dataType+" is not currently supported.");
     			} else {
             		fieldSchemas.add(new Schema.FieldSchema(predictedFieldAlias,dataTypeMap.get(dataType)));
     			}
@@ -280,6 +279,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		for(FieldName inputField : this.activeFields){
 
 			// Get Object
+			// WARNING: THIS IS A HACK. It's likely that the "Long" check below resolves this issue.
 			Object origBodyCell = (Object) input.get(aliasMap.get(inputField.getValue().toLowerCase()));
 			
 			Object bodyCell;
@@ -289,7 +289,6 @@ public class ScorePMML extends EvalFunc<Tuple> {
 				bodyCell = origBodyCell;
 			}
 
-			// Prepare Object for Scoring
 			this.preparedRow.put(inputField, EvaluatorUtil.prepare(this.evaluator, inputField, bodyCell));
 
 			// Prepare Object for Scoring
@@ -302,7 +301,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 	        	System.err.println(t);
 	            throw new RuntimeException(t);
 			}
-			*/
+			 */
 
 		}
 

@@ -54,7 +54,7 @@ public class AugmentedDickeyFuller {
 			designMatrix.setColumn(1, ones(ts.length - 1 - k + 1));
 			designMatrix.setColumn(2, trend);
 			designMatrix.setSubMatrix(yt1.getData(), 0, 3);
-			
+ 57 |
 		} else {
 			//build design matrix as cbind(xt1, 1, tt)
 			designMatrix = MatrixUtils.createRealMatrix(ts.length - 1 - k + 1, 3);

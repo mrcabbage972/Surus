@@ -156,17 +156,17 @@ public class RAD extends EvalFunc<DataBag> {
 		double[] inputArray = new double[this.nRows*this.nCols];
 		Integer numNonZeroRecords = 0;
 		for (int n=0; n< inputArray.length; n++) {
-			if (this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE) {
-				inputArray[n] = (Double) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
-			} else if (this.dataBagSchema.getField(this.colName).type == DataType.FLOAT) {
-				inputArray[n] = (Float) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
-			} else if (this.dataBagSchema.getField(this.colName).type == DataType.LONG ) {
-				inputArray[n] = (Long) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
-			} else if (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER ) {
-				inputArray[n] = (Integer) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
+			if (this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE){
+			    inputArray[n] = (Double) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
+			} else if (this.dataBagSchema.getField(this.colName).type == DataType.FLOAT){
+			    inputArray[n] = (Float) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
+			} else if (this.dataBagSchema.getField(this.colName).type == DataType.LONG){
+			    inputArray[n] = (Long) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
+			} else if (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER){
+			    inputArray[n] = (Integer) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
 			} else {
-	        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
-	                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
+			    throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
+			        DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
 			}
 			
 			if (Math.abs(inputArray[n]) > eps) numNonZeroRecords++;
@@ -214,8 +214,8 @@ public class RAD extends EvalFunc<DataBag> {
 			input2DArray = VectorToMatrix(inputArrayTransformed, this.nRows, this.nCols);
 			
 			RPCA rSVD = new RPCA(input2DArray, this.lpenalty, this.spenalty);
-			
-			double[][] outputE = rSVD.getE().getData();
+217 |
+			double[][] outputE = rSVD.getE().getData(); //TODO: get E separately for all cols
 			double[][] outputS = rSVD.getS().getData();
 			double[][] outputL = rSVD.getL().getData();
 

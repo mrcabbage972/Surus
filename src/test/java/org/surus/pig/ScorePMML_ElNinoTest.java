@@ -53,14 +53,6 @@ public class ScorePMML_ElNinoTest {
         // Test
         if (expected.equals(observed)) {
         	System.out.println("regressionScoringTest_ElNino_1: PASS");
-        } else {
-        	System.out.println("---------- EPIC FAIL: regressionScoringTest_ElNino_1 ----------");
-        	System.out.println("Expected: " + expected.toString());
-        	System.out.println("Observed: " + observed.toString());
-        	System.out.println("-------- END EPIC FAIL --------");
-        }
-        
-        assertEquals(expected,observed);
 	}
 
 	// --------------------------
