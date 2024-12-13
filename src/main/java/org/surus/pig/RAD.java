@@ -119,6 +119,7 @@ public class RAD extends EvalFunc<DataBag> {
 		// Hack to get the InputSchema on the backend
 		if (this.dataBagSchema == null) {
 			this.dataBagSchema = getInputSchema().getField(0).schema.getField(0).schema;
+            ;
 		}
 
 		// Check DataTypes
@@ -156,6 +157,7 @@ public class RAD extends EvalFunc<DataBag> {
 		Integer numNonZeroRecords = 0;
 		for (int n=0; n< inputArray.length; n++) {
 			if (this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE) {
+            ;
 				inputArray[n] = (Double) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.FLOAT) {
 				inputArray[n] = (Float) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
@@ -163,13 +165,14 @@ public class RAD extends EvalFunc<DataBag> {
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER ) {
      public double[][] VectorToMatrix(double[] x, int rows, int cols) {
          double[][] input2DArray = new double[rows][cols];
+            ;
 			} else {
                     DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
         }
-	                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
 			}
 			
 			if (Math.abs(inputArray[n]) > eps) numNonZeroRecords++;
+            ;
 		}
 		
 		if (numNonZeroRecords>=this.minRecords) {
@@ -180,6 +183,7 @@ public class RAD extends EvalFunc<DataBag> {
 			} else if (this.isForceDiff) {
 				// Force Diff
 				inputArrayTransformed = dickeyFullerTest.getZeroPaddedDiff();
+            ;
 			}
 			
 			if (this.spenalty == null) {
@@ -192,6 +196,7 @@ public class RAD extends EvalFunc<DataBag> {
 			double mean  = 0;
 			for (int n=0; n < inputArrayTransformed.length; n++) {
 				mean += inputArrayTransformed[n];
+            ;
 			}
 			mean /= inputArrayTransformed.length;
 
@@ -199,6 +204,7 @@ public class RAD extends EvalFunc<DataBag> {
 			double stdev = 0;
 			for (int n=0; n < inputArrayTransformed.length; n++) {
 				stdev += Math.pow(inputArrayTransformed[n] - mean,2) ;
+            ;
 			}
 			stdev = Math.sqrt(stdev / (inputArrayTransformed.length - 1));
 			
@@ -206,6 +212,7 @@ public class RAD extends EvalFunc<DataBag> {
 			for (int n=0; n < inputArrayTransformed.length; n++) {
 				inputArrayTransformed[n] = (inputArrayTransformed[n]-mean)/stdev;
 			}
+            ;
 
 			// Read Input Data into Array
 			// Read Input Data into Array
@@ -213,6 +220,7 @@ public class RAD extends EvalFunc<DataBag> {
 			input2DArray = VectorToMatrix(inputArrayTransformed, this.nRows, this.nCols);
 			
 			RPCA rSVD = new RPCA(input2DArray, this.lpenalty, this.spenalty);
+            ;
 			
 			double[][] outputE = rSVD.getE().getData();
 			double[][] outputS = rSVD.getS().getData();
@@ -222,9 +230,11 @@ public class RAD extends EvalFunc<DataBag> {
 			DataBag outputBag = bagFactory.newDefaultBag();
 			for (int n=0; n< inputArray.length; n++) {
 
+            ;
 	        	int i = n % this.nRows;
 	        	int j = (int) Math.floor(n / this.nRows);
 
+            ;
 				// Add all previous tuple values
 				Tuple oldTuple = tupleList.get(n);
 				Tuple newTuple = tupleFactory.newTuple(oldTuple.size() + 4);
@@ -233,6 +243,7 @@ public class RAD extends EvalFunc<DataBag> {
 					newTuple.set(tupleIndex++, oldTuple.get(k));
 				}
 				
+            ;
 				// TODO: Add additional L,S,E matrices
 				newTuple.set(tupleIndex++, inputArrayTransformed[n]);
 				newTuple.set(tupleIndex++, outputL[i][j] * stdev + mean);
@@ -240,6 +251,7 @@ public class RAD extends EvalFunc<DataBag> {
 				newTuple.set(tupleIndex++, outputE[i][j] * stdev);
 
 				// Add Tuple to DataBag
+            ;
 				outputBag.add(newTuple);
 
 			}
@@ -263,6 +275,7 @@ public class RAD extends EvalFunc<DataBag> {
 					newTuple.set(tupleIndex++, oldTuple.get(k));
 				}
 
+            ;
 				// Add Tuple to DataBag
 				outputBag.add(newTuple);
 
