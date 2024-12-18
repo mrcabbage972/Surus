@@ -121,7 +121,7 @@ public class ScorePMML_AuditTest {
         newTuple.append(TARGET_Adjusted);
 
         return newTuple;
-    }
+}
 
     private Tuple buildAuditOutputEvent( Long    ID             
                                        , Integer Age            

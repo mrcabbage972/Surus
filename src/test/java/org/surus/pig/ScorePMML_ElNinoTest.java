@@ -90,15 +90,15 @@ public class ScorePMML_ElNinoTest {
 
         Tuple newTuple = tf.newTuple();
         newTuple.append(buoy_day_ID);
-        newTuple.append(buoy       );
-        newTuple.append(day        );
-        newTuple.append(latitude   );
-        newTuple.append(longitude  );
-        newTuple.append(zon_winds  );
-        newTuple.append(mer_winds  );
-        newTuple.append(humidity   );
-        newTuple.append(airtemp    );
-        newTuple.append(s_s_temp   );
+        newTuple.append(buoy);
+        newTuple.append(day);
+        newTuple.append(latitude);
+        newTuple.append(longitude);
+        newTuple.append(zon_winds);
+        newTuple.append(mer_winds);
+        newTuple.append(humidity);
+        newTuple.append(airtemp);
+        newTuple.append(s_s_temp);
 
         return newTuple;
     }

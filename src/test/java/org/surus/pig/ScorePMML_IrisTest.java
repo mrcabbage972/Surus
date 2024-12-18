@@ -195,11 +195,11 @@ public class ScorePMML_IrisTest {
     private Tuple buildIrisInputEvent(double sepal_length, double sepal_width, double petal_length, double petal_width, String inputClass) {
 
         Tuple newTuple = tf.newTuple();
-        newTuple.append(sepal_length);
-        newTuple.append(sepal_width);
-        newTuple.append(petal_length);
-        newTuple.append(petal_width);
-        newTuple.append(inputClass);
+        newTuple.append(sepal_length instanceof Double ? (Double) sepal_length : 0.0);
+        newTuple.append(sepal_width instanceof Double ? (Double) sepal_width : 0.0);
+        newTuple.append(petal_length instanceof Double ? (Double) petal_length : 0.0);
+        newTuple.append(petal_width instanceof Double ? (Double) petal_width : 0.0);
+        newTuple.append(inputClass instanceof String ? (String) inputClass : "NA");
 
         return newTuple;
     }

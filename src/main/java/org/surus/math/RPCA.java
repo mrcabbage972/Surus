@@ -97,10 +97,10 @@ public class RPCA {
 	
 	private double computeL(double mu) {
 		double LPenalty = lpenalty * mu;
-		SingularValueDecomposition svd = new SingularValueDecomposition(X.subtract(S));
+        SingularValueDecomposition svd = new SingularValueDecomposition(X.subtract(S));
 		double[] penalizedD = softThreshold(svd.getSingularValues(), LPenalty);
 		RealMatrix D_matrix = MatrixUtils.createRealDiagonalMatrix(penalizedD);
-		L = svd.getU().multiply(D_matrix).multiply(svd.getVT());
+        L = svd.getU().multiply(D_matrix).multiply(svd.getV().transpose());
 		return sum(penalizedD) * LPenalty;
 	}
 	

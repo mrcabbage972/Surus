@@ -80,10 +80,9 @@ public class RAD extends EvalFunc<DataBag> {
             
             this.dataBagSchema.prettyPrint();
             
-        	// Create List of Tuple Values
-        	List<FieldSchema> fieldSchemas = new ArrayList<FieldSchema>();
-        	fieldSchemas.addAll(dataBagSchema.getFields());
-            fieldSchemas.add(new Schema.FieldSchema("x_transform", DataType.DOUBLE));
+            // Create List of Tuple Values
+            List<FieldSchema> fieldSchemas = new ArrayList<FieldSchema>();
+            fieldSchemas.addAll(dataBagSchema.getFields());
             fieldSchemas.add(new Schema.FieldSchema("rsvd_l", DataType.DOUBLE));
             fieldSchemas.add(new Schema.FieldSchema("rsvd_s", DataType.DOUBLE));
             fieldSchemas.add(new Schema.FieldSchema("rsvd_e", DataType.DOUBLE));
