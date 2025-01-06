@@ -106,7 +106,7 @@ public class RPCA {
 	
 	private double computeS(double mu) {
 		double SPenalty = spenalty * mu;
-		double[][] penalizedS = softThreshold(X.subtract(L).getData(), SPenalty);
+		double[][] penalizedS = softThreshold(X.subtract(L).getData().clone(), SPenalty);
 		S = MatrixUtils.createRealMatrix(penalizedS);
 		return l1norm(penalizedS) * SPenalty;
 	}
@@ -124,12 +124,11 @@ public class RPCA {
 	private double computeDynamicMu() {
 		int m = E.getRowDimension();
 		int n = E.getColumnDimension();
-		
 		double E_sd = standardDeviation(E.getData());
 		double mu = E_sd * Math.sqrt(2*Math.max(m,n));
-		
+		//System.out.println("mu: "+mu);
 		return Math.max(.01, mu);
-	}
+
 	
 	/*private double MedianAbsoluteDeviation(double[][] x) {
 		DescriptiveStatistics stats = new DescriptiveStatistics();

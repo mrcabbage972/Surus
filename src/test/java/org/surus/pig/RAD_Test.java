@@ -59,8 +59,8 @@ public class RAD_Test {
         if (approximateCompareBags(expected,observed)) {
         	System.out.println("PASS");
         } else {
-        	System.out.println("------- EPIC FAIL --------");
-        	System.out.println("Expected: "+expected.toString());
+        	System.out.println("------- EPIC FAIL:  --------");
+        	System.out.println("Expected: " + expected.toString());
         	System.out.println("Observed: "+observed.toString());
         }
         
@@ -93,7 +93,7 @@ public class RAD_Test {
     }
     
     private DataBag buildDataBag(double[] obj1) {
-    	
+96 |
         DataBag dataBag  = bf.newDefaultBag();
     	for (int n=0; n<obj1.length; n++) {
         	Tuple newTuple = tf.newTuple();
@@ -104,7 +104,7 @@ public class RAD_Test {
     }
 
     private DataBag buildDataBag(double[] obj1, double[] obj2, double[] obj3, double[] obj4, boolean isDifferencing) {
-        
+107 |
     	DataBag dataBag  = bf.newDefaultBag();
         double previous = 0.0;
 

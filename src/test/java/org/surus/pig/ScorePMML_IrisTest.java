@@ -57,7 +57,7 @@ public class ScorePMML_IrisTest {
         if (expected.equals(observed)) {
         	System.out.println("treeScoringTest_Iris_1: PASS");
         } else {
-        	System.out.println("---------- EPIC FAIL: treeScoringTest_Iris_1 ----------");
+        	System.out.println(String.format("---------- EPIC FAIL: %s ----------", "treeScoringTest_Iris_1"));
         	System.out.println("Expected: " + expected.toString());
         	System.out.println("Observed: " + observed.toString());
         	System.out.println("-------- END EPIC FAIL --------");
@@ -92,7 +92,7 @@ public class ScorePMML_IrisTest {
         if (expected.equals(observed)) {
         	System.out.println("treeScoringTest_Iris_2: PASS");
         } else {
-        	System.out.println("---------- EPIC FAIL: treeScoringTest_Iris_2 ----------");
+        	System.out.println(String.format("---------- EPIC FAIL: %s ----------", "treeScoringTest_Iris_2"));
         	System.out.println("Expected: " + expected.toString());
         	System.out.println("Observed: " + observed.toString());
         	System.out.println("-------- END EPIC FAIL --------");
@@ -127,7 +127,7 @@ public class ScorePMML_IrisTest {
         if (expected.equals(observed)) {
         	System.out.println("nnScoringTest_Iris_1: PASS");
         } else {
-        	System.out.println("---------- EPIC FAIL: nnScoringTest_Iris_1 ----------");
+        	System.out.println(String.format("---------- EPIC FAIL: %s ----------", "nnScoringTest_Iris_1"));
         	System.out.println("Expected: " + expected.toString());
         	System.out.println("Observed: " + observed.toString());
         	System.out.println("-------- END EPIC FAIL --------");
@@ -164,7 +164,7 @@ public class ScorePMML_IrisTest {
         if (expected.equals(observed)) {
         	System.out.println("rfScoringTest_Iris_1: PASS");
         } else {
-        	System.out.println("---------- EPIC FAIL: rfScoringTest_Iris_1 ----------");
+        	System.out.println(String.format("---------- EPIC FAIL: %s ----------", "rfScoringTest_Iris_1"));
         	System.out.println("Expected: " + expected.toString());
         	System.out.println("Observed: " + observed.toString());
         	System.out.println("-------- END EPIC FAIL --------");

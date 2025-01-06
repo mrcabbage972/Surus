@@ -55,8 +55,8 @@ public class ScorePMML_ElNinoTest {
         	System.out.println("regressionScoringTest_ElNino_1: PASS");
         } else {
         	System.out.println("---------- EPIC FAIL: regressionScoringTest_ElNino_1 ----------");
-        	System.out.println("Expected: " + expected.toString());
-        	System.out.println("Observed: " + observed.toString());
+        	System.out.println(String.format("Expected: %s", expected.toString()));
+        	System.out.println(String.format("Observed: %s", observed.toString()));
         	System.out.println("-------- END EPIC FAIL --------");
         }
         

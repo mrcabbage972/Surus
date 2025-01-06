@@ -44,22 +44,14 @@ public class AugmentedDickeyFuller {
 		
 		RealMatrix z = MatrixUtils.createRealMatrix(laggedMatrix(y, k)); //has rows length(ts) - 1 - k + 1
 		RealVector zcol1 = z.getColumnVector(0); //has length length(ts) - 1 - k + 1
-		double[] xt1 = subsetArray(ts, k-1, n-1);  //ts[k:(length(ts) - 1)], has length length(ts) - 1 - k + 1
-		double[] trend = sequence(k,n); //trend k:n, has length length(ts) - 1 - k + 1
 		if (k > 1) {
 			RealMatrix yt1 = z.getSubMatrix(0, ts.length - 1 - k, 1, k-1); //same as z but skips first column
-			//build design matrix as cbind(xt1, 1, trend, yt1)
 			designMatrix = MatrixUtils.createRealMatrix(ts.length - 1 - k + 1, 3 + k - 1);
 			designMatrix.setColumn(0, xt1);
-			designMatrix.setColumn(1, ones(ts.length - 1 - k + 1));
 			designMatrix.setColumn(2, trend);
-			designMatrix.setSubMatrix(yt1.getData(), 0, 3);
 			
-		} else {
 			//build design matrix as cbind(xt1, 1, tt)
-			designMatrix = MatrixUtils.createRealMatrix(ts.length - 1 - k + 1, 3);
 			designMatrix.setColumn(0, xt1);
-			designMatrix.setColumn(1, ones(ts.length - 1 - k + 1));
 			designMatrix.setColumn(2, trend);
 		}
 		/*OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();

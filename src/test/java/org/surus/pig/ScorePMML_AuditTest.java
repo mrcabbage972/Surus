@@ -56,7 +56,7 @@ public class ScorePMML_AuditTest {
         	System.out.println("ensembleScoringTest_Audit_1: PASS");
         } else {
         	System.out.println("---------- EPIC FAIL: ensembleScoringTest_Audit_1 ----------");
-        	System.out.println("Expected: " + expected.toString());
+        	System.out.println(String.format("Expected: %s", expected.toString()));
         	System.out.println("Observed: " + observed.toString());
         	System.out.println("-------- END EPIC FAIL --------");
         }

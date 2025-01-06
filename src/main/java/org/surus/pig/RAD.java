@@ -48,7 +48,6 @@ public class RAD extends EvalFunc<DataBag> {
 			throw new RuntimeException("Invalid parameters list");
 		}
 		
-		// set other parameters
 		this.minRecords = 2 * this.nRows;
 
 	}
@@ -70,12 +69,10 @@ public class RAD extends EvalFunc<DataBag> {
 
             // Check Bag Schema
             Schema inputBagSchema = inputFieldSchema.schema;
-            if (inputBagSchema.getField(0).type != DataType.TUPLE) {
-                throw new RuntimeException(String.format("Expected input bag to contain a TUPLE, but instead found %s",
-                        DataType.findTypeName(inputBagSchema.getField(0).type)));
-            }
-
-            // Define Input Tuple Schema
+      if (inputBagSchema.getField(0).type != DataType.TUPLE) {
+        throw new RuntimeException(String.format("Expected input bag to contain a TUPLE, but instead found %s",
+                                                 DataType.findTypeName(inputBagSchema.getField(0).type)));
+      }
             this.dataBagSchema = inputBagSchema.getField(0).schema;
             
             this.dataBagSchema.prettyPrint();
@@ -96,17 +93,14 @@ public class RAD extends EvalFunc<DataBag> {
             Schema outputSchema = new Schema(bagFieldSchema);
             return outputSchema;
             
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
+			} catch (Throwable t) { throw new RuntimeException(t); }
 
     }
 	
     // Helper Function
     public double[][] VectorToMatrix(double[] x, int rows, int cols) {
         double[][] input2DArray = new double[rows][cols];
-        for (int n= 0; n< x.length; n++) {
-        	int i = n % rows;
+        double[][] input2DArray = new double[rows][cols];   	for(int n= 0; n< x.length; n++) {
         	int j = (int) Math.floor(n / rows);
         	input2DArray[i][j] = x[n];
         }
@@ -118,40 +112,34 @@ public class RAD extends EvalFunc<DataBag> {
 	public DataBag exec(Tuple input) throws IOException {
 		
 		// Hack to get the InputSchema on the backend
-		if (this.dataBagSchema == null) {
-			this.dataBagSchema = getInputSchema().getField(0).schema.getField(0).schema;
-		}
+		if (this.dataBagSchema == null) { this.dataBagSchema = getInputSchema().getField(0).schema.getField(0).schema; }
 
 		// Check DataTypes
-        if (!(
-        		(this.dataBagSchema.getField(this.colName).type == DataType.LONG   ) ||
-        		(this.dataBagSchema.getField(this.colName).type == DataType.INTEGER) ||
-        		(this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE ) ||
-        		(this.dataBagSchema.getField(this.colName).type == DataType.FLOAT  )
-        	)) {
-        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
-                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
+        if (!( (this.dataBagSchema.getField(this.colName).type == DataType.LONG   ) ||
+                (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER) ||
+                (this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE ) ||
+                (this.dataBagSchema.getField(this.colName).type == DataType.FLOAT  )
+               )) {
+        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
         }
 		
 		// Hardcode getting the bag
 		DataBag inputBag = (DataBag) input.get(0);
-		
 		// Create TupleFactory for Output Bag Generation
 		TupleFactory tupleFactory = TupleFactory.getInstance();
 		BagFactory   bagFactory   = BagFactory.getInstance();
-
 		// Read Data into Memory
 		List<Tuple> tupleList = new ArrayList<Tuple>();
 		Iterator<Tuple> bagIter = inputBag.iterator();
-		while (bagIter.hasNext()) {
-			Tuple tuple = bagIter.next();
-			tupleList.add(tuple);
-		}
-		
-		if (tupleList.size() != this.nRows*this.nCols) {
-        	throw new RuntimeException("ERROR: this.nRows * this.nCols != tupleList.size()");
-		}
-		
+      while (bagIter.hasNext()) {
+          Tuple tuple = bagIter.next();
+          tupleList.add(tuple);
+      }
+
+      if (tupleList.size() != this.nRows*this.nCols) {
+          throw new RuntimeException("ERROR: this.nRows * this.nCols != tupleList.size()");
+      }
+
 		// Perform Dickey-Fuller Test
 		double[] inputArray = new double[this.nRows*this.nCols];
 		Integer numNonZeroRecords = 0;
@@ -165,8 +153,7 @@ public class RAD extends EvalFunc<DataBag> {
 			} else if (this.dataBagSchema.getField(this.colName).type == DataType.INTEGER ) {
 				inputArray[n] = (Integer) tupleList.get(n).get(this.dataBagSchema.getPosition(this.colName));
 			} else {
-	        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
-	                    DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
+	        	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
 			}
 			
 			if (Math.abs(inputArray[n]) > eps) numNonZeroRecords++;
@@ -187,7 +174,6 @@ public class RAD extends EvalFunc<DataBag> {
 				this.lpenalty = this.LPENALTY_DEFAULT_NO_DIFF;
 				this.spenalty = this.SPENALTY_DEFAULT_NO_DIFF / Math.sqrt(Math.max(this.nCols, this.nRows));
 			}
-
 			
 			// Calc Mean
 			double mean  = 0;
@@ -204,70 +190,56 @@ public class RAD extends EvalFunc<DataBag> {
 			stdev = Math.sqrt(stdev / (inputArrayTransformed.length - 1));
 			
 			// Transformation: Zero Mean, Unit Variance
-			for (int n=0; n < inputArrayTransformed.length; n++) {
-				inputArrayTransformed[n] = (inputArrayTransformed[n]-mean)/stdev;
-			}
-
+			for (int n=0; n < inputArrayTransformed.length; n++) { inputArrayTransformed[n] = (inputArrayTransformed[n]-mean)/stdev; }
 			// Read Input Data into Array
 			// Read Input Data into Array
 			double[][] input2DArray = new double[this.nRows][this.nCols];
 			input2DArray = VectorToMatrix(inputArrayTransformed, this.nRows, this.nCols);
-			
 			RPCA rSVD = new RPCA(input2DArray, this.lpenalty, this.spenalty);
 			
 			double[][] outputE = rSVD.getE().getData();
 			double[][] outputS = rSVD.getS().getData();
 			double[][] outputL = rSVD.getL().getData();
-
 			// Loop through bag and build output
 			DataBag outputBag = bagFactory.newDefaultBag();
 			for (int n=0; n< inputArray.length; n++) {
-
 	        	int i = n % this.nRows;
 	        	int j = (int) Math.floor(n / this.nRows);
-
-				// Add all previous tuple values
-				Tuple oldTuple = tupleList.get(n);
-				Tuple newTuple = tupleFactory.newTuple(oldTuple.size() + 4);
-				int tupleIndex = 0;
-				for (int k = 0; k < oldTuple.size(); k++) {
-					newTuple.set(tupleIndex++, oldTuple.get(k));
-				}
-				
-				// TODO: Add additional L,S,E matrices
-				newTuple.set(tupleIndex++, inputArrayTransformed[n]);
-				newTuple.set(tupleIndex++, outputL[i][j] * stdev + mean);
-				newTuple.set(tupleIndex++, outputS[i][j] * stdev);
-				newTuple.set(tupleIndex++, outputE[i][j] * stdev);
-
-				// Add Tuple to DataBag
-				outputBag.add(newTuple);
-
-			}
+	        	// Add all previous tuple values
+	        	Tuple oldTuple = tupleList.get(n);
+	        	Tuple newTuple = tupleFactory.newTuple(oldTuple.size() + 4);
+	        	int tupleIndex = 0;
+	        	for (int k = 0; k < oldTuple.size(); k++) {
+	        		newTuple.set(tupleIndex++, oldTuple.get(k));
+	        	}
+	        	// TODO: Add additional L,S,E matrices
+	        	newTuple.set(tupleIndex++, inputArrayTransformed[n]);
+	        	newTuple.set(tupleIndex++, outputL[i][j] * stdev + mean);
+	        	newTuple.set(tupleIndex++, outputS[i][j] * stdev);
+	        	newTuple.set(tupleIndex++, outputE[i][j] * stdev);
+	        	// Add Tuple to DataBag
+	        	outputBag.add(newTuple);
+	        }
 			// Return Tuple
 			return outputBag;
-			
+
 		} else {
-			
 			// Loop through bag and build output
 			DataBag outputBag = bagFactory.newDefaultBag();
 			for (int n=0; n< inputArray.length; n++) {
 
 	        	int i = n % this.nRows;
 	        	int j = (int) Math.floor(n / this.nRows);
-
-				// Add all previous tuple values
-				Tuple oldTuple = tupleList.get(n);
-				Tuple newTuple = tupleFactory.newTuple(oldTuple.size() + 4);
-				int tupleIndex = 0;
-				for (int k = 0; k < oldTuple.size(); k++) {
-					newTuple.set(tupleIndex++, oldTuple.get(k));
-				}
-
-				// Add Tuple to DataBag
-				outputBag.add(newTuple);
-
-			}
+	        	// Add all previous tuple values
+	        	Tuple oldTuple = tupleList.get(n);
+	        	Tuple newTuple = tupleFactory.newTuple(oldTuple.size() + 4);
+	        	int tupleIndex = 0;
+	        	for (int k = 0; k < oldTuple.size(); k++) {
+	        		newTuple.set(tupleIndex++, oldTuple.get(k));
+	        	}
+	        	// Add Tuple to DataBag
+	        	outputBag.add(newTuple);
+	        }
 			// Return Tuple
 			return outputBag;
 
@@ -275,4 +247,3 @@ public class RAD extends EvalFunc<DataBag> {
 
 	}
 	
-}
