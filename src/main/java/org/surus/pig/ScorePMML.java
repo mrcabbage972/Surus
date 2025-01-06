@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -21,6 +22,7 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
+import org.apache.pig.impl.util.UDFContext;
 import org.apache.pig.impl.util.UDFContext;
 import org.dmg.pmml.DataField;
 import org.dmg.pmml.FieldName;
@@ -85,9 +87,9 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		System.err.println("modelPath: "+this.modelPath);
 
 		// Set Distributed Cache
-    	int blah = this.modelPath.lastIndexOf("/") + 1;
-    	this.modelName = this.modelPath.substring(blah);
-       	System.err.println("modelName: "+this.modelName);
+		int blah = this.modelPath.lastIndexOf("/") + 1;
+		this.modelName = this.modelPath.substring(blah);
+		System.err.println("modelName: "+this.modelName);
 
 	}
 	
@@ -114,28 +116,17 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		// Get PMML Object
 		PMML pmml = null;
 		try {
-			
-			/*
-			 * TODO: Make this more robust. Specifically, Angela Ho wanted to refernce a file in the distributed
-			 * 		 cache directly.  Obviously, my code doesn't support this, because it would try to open
-			 * 	     the file with the IOUtil Java object, as opposed to the hadoop.fs.Path object.
-			 * 
-			 * TODO: This try/catch block is a hack for:
-			 * 		(1) checking if execution is being done on "back-end."  A check for back-end can be done with 
-			 * 			UDFContext.getUDFContext().isFrontend() BUT this does not resolve problems with local-mode.
-			 * 		(2) enables testing in local-mode without failing unit tests.
-			 */
-			
-			// Try reading file from distributed cache.
-    		pmml = IOUtil.unmarshal(new File("./"+this.modelName));
-    		System.err.println("Read model from distributed cache!");
-    		
-		} catch (Throwable t) {
-			// If not on the back-end... (and distributed cache not available) ...
-			
-			if (this.modelPath.toLowerCase().startsWith("s3n://") || this.modelPath.toLowerCase().startsWith("s3://")) {
-				// ... read from S3.
-				Path path = new Path(this.modelPath);
+			Path path = new Path(this.modelPath);
+			// Attempt to read from distributed cache.
+			FileSystem fs = path.getFileSystem(new Configuration());
+			FileStatus[] status = fs.listStatus(path);
+			if (status.length > 0) {
+				pmml = IOUtil.unmarshal(fs.open(path));
+				System.err.println("Read model from distributed cache!");
+			} else {
+				// Attempt to read from S3.
+				if (this.modelPath.toLowerCase().startsWith("s3n://") || this.modelPath.toLowerCase().startsWith("s3://")) {
+					Path path = new Path(this.modelPath);
 				FileSystem fs = path.getFileSystem(new Configuration());
 				FSDataInputStream in = fs.open(path);
 				pmml = IOUtil.unmarshal(in);
@@ -144,9 +135,8 @@ public class ScorePMML extends EvalFunc<Tuple> {
 			} else {
 				// ... read from local file.
 				pmml = IOUtil.unmarshal(new File(this.modelPath));
-	    		System.err.println("Read model from local disk!");
+				System.err.println("Read model from local disk!");
 			}
-
 		}
 
 		// Initialize the pmmlManager
@@ -157,11 +147,11 @@ public class ScorePMML extends EvalFunc<Tuple> {
 
 		this.evaluator 		 = (Evaluator)modelManager;			// Model Evaluator
 		this.activeFields 	 = evaluator.getActiveFields();		// input columns
-		this.predictedFields = evaluator.getPredictedFields();	// predicted columns
+		this.predictedFields 	 = evaluator.getPredictedFields();	// predicted columns
 		this.outputFields 	 = evaluator.getOutputFields();		// derived output columns (based on predicted columns)
 
 	}
-	
+
 	// Define Output Schema
     @Override
     public Schema outputSchema(Schema input) {
@@ -188,18 +178,17 @@ public class ScorePMML extends EvalFunc<Tuple> {
                     throw new RuntimeException("ERROR: "+activeFieldAlias+" is not in the input dataset!");
             	}
             	
-            	// Check that all active fields have expected datatypes:
+            	// Check that all active fields match expected datatype:
     			Byte left = this.inputTupleSchema.getField(aliasMap.get(activeFieldAlias)).type;
     			Byte right = dataTypeMap.get(this.evaluator.getDataField(activeField).getDataType().toString());
             	if (left != right)
             		if (failOnTypeMatching) {
                         throw new RuntimeException("ERROR: "+activeFieldAlias+" does not match expected type! (Expected: "
                         		+DataType.genTypeToNameMap().get(right)+" Observed: "+DataType.genTypeToNameMap().get(left)+")");
+DataType.genTypeToNameMap().get(right)+" Observed: "+DataType.genTypeToNameMap().get(left)+")");
             		} else if (UDFContext.getUDFContext().isFrontend() && !isVerbose) {
-            			System.err.println("WARNING: active fields do not match expected type! Please run in strict mode to determine which fields are in violation");
+            			System.err.println("WARNING: active fields do not match expected type! Please run in strict mode to determine which fields are in violation.");
             			isVerbose = true;
-            			// System.err.println("WARNING: "+activeFieldAlias+" does not match expected type! (Expected: "
-                        // 		+DataType.genTypeToNameMap().get(right)+" Observed: "+DataType.genTypeToNameMap().get(left)+")");
             		}
             }
             
@@ -213,7 +202,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
         		// Create FieldName
     			DataField dataField = this.evaluator.getDataField(predictedField);
     			String dataType = dataField.getDataType().toString();
-    			
+    			System.err.println("dataType: "+ dataType);
     			if (dataType == null) {
                     throw new RuntimeException("Predicted Fields with unknown datatype are not supported! Column: "+predictedFieldAlias+", PMML DataType "+dataType+".");
     			} else if (!dataTypeMap.containsKey(dataType)) {
@@ -262,7 +251,7 @@ public class ScorePMML extends EvalFunc<Tuple> {
 		// Initialize Evaluator if null:
 		if (this.evaluator == null) {
 			try {
-				System.out.println("Initializing: "+(dummy++)+" time");
+				System.err.println("Initializing: "+(dummy++)+" time.");
 				Schema inputSchema = getInputSchema();
 				this.initialize(inputSchema);			// something to check
 			} catch (Throwable t) {
@@ -293,17 +282,6 @@ public class ScorePMML extends EvalFunc<Tuple> {
 			this.preparedRow.put(inputField, EvaluatorUtil.prepare(this.evaluator, inputField, bodyCell));
 
 			// Prepare Object for Scoring
-			// CC: Removed this b/c I think the "Long" check above resolves any issues.
-			/*
-			try {
-				this.preparedRow.put(inputField, EvaluatorUtil.prepare(this.evaluator, inputField, bodyCell));
-			} catch (Throwable t) {
-	        	System.err.println("Unable to prepare record, Trouble Parsing: " + inputField.toString() + " (value="+ bodyCell+")");
-	        	System.err.println(t);
-	            throw new RuntimeException(t);
-			}
-			*/
-
 		}
 
 		// Score Data

@@ -127,8 +127,7 @@ public class RAD extends EvalFunc<DataBag> {
         		(this.dataBagSchema.getField(this.colName).type == DataType.LONG   ) ||
         		(this.dataBagSchema.getField(this.colName).type == DataType.INTEGER) ||
         		(this.dataBagSchema.getField(this.colName).type == DataType.DOUBLE ) ||
-        		(this.dataBagSchema.getField(this.colName).type == DataType.FLOAT  )
-        	)) {
+        		(this.dataBagSchema.getField(this.colName).type == DataType.FLOAT  ))) {
         	throw new RuntimeException(String.format("Data type of %s (%s) is not supported,",this.colName,
                     DataType.findTypeName(this.dataBagSchema.getField(this.colName).type)));
         }
